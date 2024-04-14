@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "767623769958",
+    "project_id": "hawk-monk",
+    "storage_bucket": "hawk-monk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:767623769958:android:c6db65cae7bc1ddb26e2a7",
+        "android_client_info": {
+          "package_name": "com.example.hawk_monk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOsY-tQi4xwRxB4wmXDXmXtUJkBYcfpbs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
