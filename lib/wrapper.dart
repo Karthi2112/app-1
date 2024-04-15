@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hawk_monk/homepage.dart';
 import 'package:hawk_monk/login.dart';
+import 'package:hawk_monk/main.dart';
 import 'package:hawk_monk/verifyemail.dart';
 
 class Wrapper extends StatefulWidget {
@@ -21,7 +22,7 @@ class _WrapperState extends State<Wrapper> {
         if (snapshot.hasData) {
           print(snapshot.data);
           if (snapshot.data!.emailVerified) {
-            return Homepage();
+            return MyHomePage();
           } else {
             return Verify();
           }

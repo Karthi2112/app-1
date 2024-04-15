@@ -17,6 +17,7 @@ class _SignupState extends State<Signup> {
   Signup() async {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email.text, password: password.text);
+
     Get.offAll(Wrapper());
   }
 
