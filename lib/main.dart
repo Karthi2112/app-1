@@ -31,10 +31,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController invstController = TextEditingController();
+  TextEditingController tenureController = TextEditingController();
+
+  List<String> tenures = ['1 year', '2 years', '3 years', '4 years', '5 years'];
+  List<String> payRhythms = [
+    'Monthly',
+    'Quarterly',
+  ];
+
   String? selectedTenure;
   String? selectedPayRhythm;
 
-  List<String> payRhythms = ['Monthly', 'Half-yearly', 'Yearly'];
+  List<Widget> schemeCards = [];
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 10),
             DropdownButtonFormField<String>(
               value: selectedTenure,
-              items: [
-                '12 Months',
-                '15 Months',
-                '18 Monthss',
-                '24 Monthss',
-                '36 Months'
-              ].map((String value) {
+              items: tenures.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
@@ -101,31 +103,25 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(height: 10),
-            Container(
-              height: 50,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: payRhythms.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      children: [
-                        Text(payRhythms[index]),
-                        Radio<String>(
-                          value: payRhythms[index],
-                          groupValue: selectedPayRhythm,
-                          onChanged: (String? value) {
-                            setState(() {
-                              selectedPayRhythm = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+            Row(
+              children: [
+                Text('Select Pay Rhythm: '),
+                for (String rhythm in payRhythms)
+                  Row(
+                    children: [
+                      Radio<String>(
+                        value: rhythm,
+                        groupValue: selectedPayRhythm,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedPayRhythm = value;
+                          });
+                        },
+                      ),
+                      Text(rhythm),
+                    ],
+                  ),
+              ],
             ),
             SizedBox(height: 20),
             Center(
@@ -149,11 +145,96 @@ class _MyHomePageState extends State<MyHomePage> {
                       .orderBy('invst', descending: true)
                       .get();
 
-                  // Process the scheme details as needed
+                  schemeCards = schemeSnapshot.docs.map((doc) {
+                    return Card(
+                      child: ListTile(
+                        title: Text('Jewel Partner: ${doc['Jp']}'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Scheme Name: ${doc['scheme_name']}'),
+                            Text('Investment: ${doc['invst']}'),
+                            Text('Rating: ${doc['rating']}'),
+                          ],
+                        ),
+                        trailing: Radio(
+                          value: doc
+                              .id, // Assuming doc.id is unique for each scheme
+                          groupValue:
+                              null, // Provide appropriate group value to manage radio buttons
+                          onChanged: (value) async {
+                            // Fetch scheme details for selected scheme
+                            DocumentSnapshot schemeDetails = await FirebaseFirestore
+                                .instance
+                                .collection('scheme')
+                                .doc(
+                                    value) // Assuming value is the doc id of the selected scheme
+                                .get();
+
+                            // Show dialog with scheme details
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title:
+                                      Text('${schemeDetails['scheme_name']}'),
+                                  content: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                          ' ${schemeDetails['scheme_details']}'),
+                                      Text('BENEFITS'),
+                                      Text(' ${schemeDetails['benefits']}'),
+                                      Text('CONDITIONS'),
+                                      Text(
+                                          ' ${schemeDetails['scheme_conditions']}'),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        // Proceed to pay action
+                                        Navigator.of(context).pop();
+                                        // Navigate to payment screen
+                                      },
+                                      child: Text('Proceed to Pay'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // Add to cart action
+                                        Navigator.of(context).pop();
+                                        // Add scheme to cart
+                                      },
+                                      child: Text('Add to Cart'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // Compare action
+                                        Navigator.of(context).pop();
+                                        // Compare schemes
+                                      },
+                                      child: Text('Compare'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  }).toList();
+
+                  // Update the UI to display the scheme cards
+                  setState(() {});
                 },
                 child: Text('Submit'),
               ),
             ),
+            SizedBox(height: 20),
+            if (schemeCards.isNotEmpty) ...schemeCards,
           ],
         ),
       ),
